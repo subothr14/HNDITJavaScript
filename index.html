@@ -111,7 +111,7 @@ Run the example to see the result.</pre
         input.hidden = saveBtn.hidden = Boolean(session);
         logoutBtn.hidden = !session;
         nameOut.textContent = session ? `Hello, ${session.name}` : "";
-        // Use the time that is left, so a reload cannot extend the session.
+        
         if (session)
           timer = setTimeout(
             () => logout("Session expired."),
