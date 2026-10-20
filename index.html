@@ -107,7 +107,7 @@ Run the example to see the result.</pre
       }
 
       function show(session) {
-        clearTimeout(timer); // clearTimeout needs the id setTimeout returned
+        clearTimeout(timer);
         input.hidden = saveBtn.hidden = Boolean(session);
         logoutBtn.hidden = !session;
         nameOut.textContent = session ? `Hello, ${session.name}` : "";
