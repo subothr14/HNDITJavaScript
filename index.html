@@ -85,138 +85,61 @@ Run the example to see the result.</pre
     </div>
 
     <script>
-      "use strict";
+      // Save the name in the browser and end the session after a set time.
+      const KEY = "HNDHTML";
+      const SESSION = 5 * 60 * 1000; // 5 minutes
 
-      // LOCAL STORAGE DEMO
-      // Save the student's name in the browser, show it again on the next
-      // visit, and end the session automatically after a set time.
-      // localStorage only stores text, so objects go in and out through JSON.
+      const input = document.getElementById("input");
+      const saveBtn = document.getElementById("save");
+      const logoutBtn = document.getElementById("logout");
+      const nameOut = document.getElementById("name");
+      const status = document.getElementById("status");
+      let timer;
 
-      const STORAGE_KEY = "HNDHTML";
-      const SESSION_LENGTH = 5 * 60 * 1000; // 5 minutes, in milliseconds
-
-      const nameInput = document.getElementById("input");
-      const saveButton = document.getElementById("save");
-      const logoutButton = document.getElementById("logout");
-      const nameOutput = document.getElementById("name");
-      const statusOutput = document.getElementById("status");
-
-      // Holds the id returned by setTimeout so clearTimeout can cancel it.
-      let logoutTimer = null;
-
-      function showStatus(message) {
-        statusOutput.textContent = message;
-      }
-
-      // Read the saved session back out of storage.
-      // Returns null when nothing is stored, the stored text is damaged, or
-      // the session has already run out of time.
-      function loadSession() {
+      // Returns the saved session, or null if missing, damaged or expired.
+      function load() {
         try {
-          const stored = localStorage.getItem(STORAGE_KEY);
-          if (!stored) return null;
-
-          const session = JSON.parse(stored);
-          if (!session || !session.name || Date.now() >= session.expiresAt) {
-            localStorage.removeItem(STORAGE_KEY);
-            return null;
-          }
-          return session;
-        } catch (error) {
-          // Damaged JSON, or storage blocked by the browser.
-          try {
-            localStorage.removeItem(STORAGE_KEY);
-          } catch (ignored) {}
+          const session = JSON.parse(localStorage.getItem(KEY));
+          return session && Date.now() < session.expiresAt ? session : null;
+        } catch {
           return null;
         }
       }
 
-      // Write the session to storage. Returns the saved object, or null on failure.
-      function saveSession(name) {
-        const now = Date.now();
-        const session = {
-          name: name,
-          savedAt: now,
-          expiresAt: now + SESSION_LENGTH,
-        };
-        try {
-          localStorage.setItem(STORAGE_KEY, JSON.stringify(session));
-          return session;
-        } catch (error) {
-          // Storage can be full, or switched off in private browsing.
-          showStatus(`Could not save your name: ${error.message}`);
-          return null;
-        }
+      function show(session) {
+        clearTimeout(timer); // clearTimeout needs the id setTimeout returned
+        input.hidden = saveBtn.hidden = Boolean(session);
+        logoutBtn.hidden = !session;
+        nameOut.textContent = session ? `Hello, ${session.name}` : "";
+        // Use the time that is left, so a reload cannot extend the session.
+        if (session)
+          timer = setTimeout(
+            () => logout("Session expired."),
+            session.expiresAt - Date.now(),
+          );
       }
 
       function logout(message) {
-        try {
-          localStorage.removeItem(STORAGE_KEY);
-        } catch (ignored) {}
-        render(null);
-        showStatus(message);
+        localStorage.removeItem(KEY);
+        input.value = "";
+        show(null);
+        status.textContent = message;
       }
 
-      // Update the page to match the session: signed in, or signed out.
-      function render(session) {
-        // clearTimeout cancels a pending timer by its id, so an old countdown
-        // never fires after the session has changed.
-        window.clearTimeout(logoutTimer);
-        logoutTimer = null;
-
-        const signedIn = Boolean(session);
-        nameInput.hidden = signedIn;
-        saveButton.hidden = signedIn;
-        logoutButton.hidden = !signedIn;
-
-        if (!signedIn) {
-          nameOutput.textContent = "";
-          nameInput.value = "";
-          return;
-        }
-
-        nameOutput.textContent = `Hello, ${session.name}`;
-
-        // Count down the time that is actually left, not a fresh 5 minutes,
-        // so a page reload cannot extend the session.
-        const timeLeft = Math.max(0, session.expiresAt - Date.now());
-        logoutTimer = window.setTimeout(() => {
-          logout("Your session expired. Enter your name to start again.");
-        }, timeLeft);
+      function save() {
+        const name = input.value.trim();
+        if (!name) return (status.textContent = "Please enter your name.");
+        const session = { name, expiresAt: Date.now() + SESSION };
+        localStorage.setItem(KEY, JSON.stringify(session));
+        show(session);
+        status.textContent = "Saved.";
       }
 
-      function dataSave() {
-        const name = nameInput.value.trim();
-        if (!name) {
-          showStatus("Please enter your name first.");
-          nameInput.focus();
-          return;
-        }
+      saveBtn.addEventListener("click", save);
+      logoutBtn.addEventListener("click", () => logout("You are logged out."));
+      input.addEventListener("keydown", (e) => e.key === "Enter" && save());
 
-        const session = saveSession(name);
-        if (!session) return;
-
-        render(session);
-        showStatus("Saved. Your name is remembered on this browser.");
-      }
-
-      saveButton.addEventListener("click", dataSave);
-      logoutButton.addEventListener("click", () => logout("You are logged out."));
-      nameInput.addEventListener("keydown", (event) => {
-        if (event.key === "Enter") dataSave();
-      });
-
-      // The storage event fires in the *other* open tabs of this page whenever
-      // this key changes, so logging out in one tab updates them all.
-      window.addEventListener("storage", (event) => {
-        if (event.key === STORAGE_KEY || event.key === null) {
-          render(loadSession());
-          showStatus("");
-        }
-      });
-
-      // Show the saved name straight away when the page opens.
-      render(loadSession());
+      show(load()); // show the saved name as soon as the page opens
     </script>
   </body>
 </html>
