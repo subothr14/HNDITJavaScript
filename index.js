@@ -128,7 +128,7 @@ function showLesson(index) {
   element("progress").textContent = `${index + 1} of ${lessons.length}`;
   element("output").textContent = "Run the example to see the result.";
   element("run").disabled = false;
-  element("run").textContent = "Run example ?";
+  element("run").textContent = "Run example →";
   element("previous").disabled = index === 0;
   element("next").disabled = index === lessons.length - 1;
   document.querySelector("details").open = false;
@@ -143,7 +143,7 @@ function showLesson(index) {
 element("run").addEventListener("click", async () => {
   const version = viewVersion;
   element("run").disabled = true;
-  element("output").textContent = "Running example�";
+  element("output").textContent = "Running example…";
   try {
     const output = await lessons[currentLesson].run();
     if (version === viewVersion) element("output").textContent = output.map(String).join("\n");
@@ -152,7 +152,7 @@ element("run").addEventListener("click", async () => {
   } finally {
     if (version === viewVersion) {
       element("run").disabled = false;
-      element("run").textContent = "Run again ?";
+      element("run").textContent = "Run again →";
     }
   }
 });
