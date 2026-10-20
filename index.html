@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>JavaScript Classroom</title>
+    <link rel="stylesheet" href="styles.css" />
+    <script src="index.js" defer></script>
+    <script src="./original-examples.js" defer></script>
+  </head>
+  <body>
+    <header>
+      <strong class="brand">JS <span>JavaScript Classroom</span></strong>
+      <span>HND � STUDENT GUIDE</span>
+    </header>
+    <div class="layout">
+      <aside>
+        <p class="eyebrow">YOUR LEARNING PATH</p>
+
+        <input type="text" placeholder="Enter Your Name" id="input" />
+        <button onclick="DataSave()">Submit</button>
+        <span id="name"> </span>
+        <nav id="navigation" aria-label="Lessons"></nav>
+        <p class="note">
+          Read the example. Predict the output. Run it. Then try the practice
+          task in your own file.
+        </p>
+      </aside>
+      <main>
+        <section class="intro">
+          <p class="eyebrow">LEARN ? RUN ? PRACTICE</p>
+          <h1>Small steps.<br /><span>Real understanding.</span></h1>
+          <p>
+            A structured introduction to JavaScript, built for students.<br />Seven
+            lessons to turn the basics into something you can use.
+          </p>
+        </section>
+        <article>
+          <p class="eyebrow" id="number"></p>
+          <h2 id="title"></h2>
+          <div class="goal">
+            <strong>Learning goal</strong>
+            <p id="goal"></p>
+          </div>
+          <h3>01 <span>Understand the idea</span></h3>
+          <p id="explanation"></p>
+          <h3>02 <span>Read & run the example</span></h3>
+          <div class="code-bar">
+            <span>example.js</span
+            ><button id="run" type="button">Run example ?</button>
+          </div>
+          <pre class="code"><code id="code"></code></pre>
+          <div class="output">
+            <small>OUTPUT</small>
+            <pre id="output" aria-live="polite">
+Run the example to see the result.</pre
+            >
+          </div>
+          <h3>03 <span>Try it yourself</span></h3>
+          <div class="practice">
+            <p id="practice"></p>
+            <details>
+              <summary>Need a hint?</summary>
+              <p id="hint"></p>
+            </details>
+          </div>
+          <div class="controls">
+            <button id="previous" type="button">? Previous</button
+            ><span id="progress"></span
+            ><button id="next" type="button">Next lesson ?</button>
+          </div>
+        </article>
+        <footer>Keep experimenting. Errors are part of learning.</footer>
+      </main>
+    </div>
+
+    <script>
+      var a = document.getElementById("name");
+      var inputs = document.getElementById("input");
+
+      function DataSave() {
+        if (!inputs?.value) alert("Empty: ", inputs);
+        else {
+          try {
+            var datasets = { name: inputs.value };
+            var local = localStorage.setItem(
+              "HNDHTML",
+              JSON.stringify(datasets),
+            );
+          } catch (err) {
+            alert("Error", err);
+          }
+        }
+      }
+
+      window.setTimeout(() => {
+        localStorage.removeItem("HNDHTML");
+        alert("You are logged out");
+        window.location.reload();
+      }, [5000]);
+
+      window.clearTimeout(() => {
+        localStorage.removeItem("HNDHTML");
+        alert("You are logged out");
+        window.location.reload();
+      });
+
+      //
+    </script>
+  </body>
+</html>
